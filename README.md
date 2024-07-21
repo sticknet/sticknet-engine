@@ -1,1 +1,3 @@
-# Sticknet Server
+# Sticknet Engine
+
+Backend system for Sticknet.

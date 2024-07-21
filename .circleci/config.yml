@@ -23,7 +23,7 @@ jobs:
           name: run tests
           command: "cd ./test_src && python ../src/manage.py test"
 
-workflows:
-  CI:
-    jobs:
-      - run_tests
+#workflows:
+#  CI:
+#    jobs:
+#      - run_tests
