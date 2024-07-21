@@ -1,0 +1,11 @@
+export const securityAnimation = require('./securityAnimation.json')
+export const syncAnimation = require('./syncAnimation.json')
+export const speedAnimation = require('./speedAnimation.json')
+export const adsAnimation = require('./ads.json')
+export const albumAnimation = require('./album.json')
+export const verifiedAnimation = require('./verified.json')
+export const installAnimation = require('./install.json')
+export const premiumAnimation = require('./premiumAnimation.json')
+export const celebrateAnimation = require('./celebrateAnimation.json')
+export const decentralizedAnimation = require('./decentralizedAnimation.json')
+export const socialAnimation = require('./socialAnimation.json');

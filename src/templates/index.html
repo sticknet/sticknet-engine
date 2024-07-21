@@ -1,0 +1,17 @@
+{% load render_bundle from webpack_loader %}
+<html>
+<head>
+    <link rel="shortcut icon"
+          href="https://firebasestorage.googleapis.com/v0/b/stiiick-1545628981656.appspot.com/o/sticknet-web-icon.png?alt=media&token=d9539814-3530-4ea9-babd-c28e204c0e27"
+          type="image/x-icon">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Sticknet</title>
+</head>
+<body>
+<div id="root">
+</div>
+{% render_bundle 'main' %}
+</body>
+
+</html>

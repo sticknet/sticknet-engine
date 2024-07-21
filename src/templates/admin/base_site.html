@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% block extrahead %}
+{% if not debug %}
+<style>
+    #header {
+        background: #6060ff;
+    }
+
+    #branding h1 {
+        color: #ffffff;
+    }
+
+    #branding h1, #branding h1 a:link, #branding h1 a:visited {
+        color: #ffffff;
+    }
+
+    .actions label {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+<link rel="shortcut icon"
+      href="https://firebasestorage.googleapis.com/v0/b/stiiick-1545628981656.appspot.com/o/admin_favicon-min.png?alt=media&token=8bdcbcd5-a7b9-4a01-b311-45c8672cf0c4"
+      type="image/x-icon">
+{% else %}
+<link rel="shortcut icon"
+      href="https://firebasestorage.googleapis.com/v0/b/stiiick-1545628981656.appspot.com/o/settings-min.png?alt=media&token=f00fb175-48fa-4281-b02d-9bacb4a06ebf"
+      type="image/x-icon">
+{% endif %}
+{% endblock %}

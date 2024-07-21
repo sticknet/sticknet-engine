@@ -1,0 +1,29 @@
+version: 2.1
+
+jobs:
+  run_tests:
+    docker:
+      - image: cimg/python:3.7
+        environment:
+          TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
+      - image: cimg/postgres:14.6
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_HOST_AUTH_METHOD: trust
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Activate env
+          command: "python3 -m venv env && source env/bin/activate"
+      - run:
+          name: install packages
+          command: pip3 install -r requirements.txt
+      - run:
+          name: run tests
+          command: "cd ./test_src && python ../src/manage.py test"
+
+workflows:
+  CI:
+    jobs:
+      - run_tests
