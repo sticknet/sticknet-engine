@@ -2,11 +2,10 @@ import os, requests, socket, sys
 from socket import gethostname, gethostbyname
 import firebase_admin
 from firebase_admin import credentials
+from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
 
 if 'RDS_DB_NAME' in os.environ:
     DEBUG = False
@@ -41,6 +40,7 @@ if 'RDS_DB_NAME' in os.environ:
     CHAT_MEDIA_PATH = 'https://' + os.environ['STATIC_CDN'] + '/static/'
 else:
     DEBUG = True
+    load_dotenv(BASE_DIR + '/../.env.dev')
     ALLOWED_HOSTS = ['*']
     DATABASES = {
         'default': {
@@ -66,17 +66,10 @@ else:
     MEDIAFILES_LOCATION = 'media'
     PUBLICFILES_LOCATION = 'public'
 
-    # CACHE_HOST = '127.0.0.1'
-    # CACHE_PORT = 11211
-    # CACHES = {
-    #     'default': {
-    #         'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-    #         'LOCATION': '127.0.0.1:11211',
-    #     }
-    # }
-    # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ['SECRET_KEY']
 
-TESTING = sys.argv[1:2] == ['test']
+TESTING = sys.argv[1:2] == ['test'] or 'DEV' in os.environ
 if not TESTING:
     CRED = credentials.Certificate(os.environ['FIREBASE_CREDENTIALS'])
 DEFAULT_APP = firebase_admin.initialize_app(CRED) if not TESTING else None
