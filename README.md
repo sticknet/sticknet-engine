@@ -42,7 +42,7 @@ server, follow these steps:
 
 1. Mobile apps: [Sticknet mobile](https://github.com/sticknet/sticknet-mobile)
 2. Web app: [Sticknet web](https://github.com/sticknet/sticknet-web)
-3. End-to-end encryption protocol: [Stick protocol](https://github.com/sticknet/stick-protocl)
+3. End-to-end encryption protocol: [Stick protocol](https://github.com/sticknet/stick-protocol)
 
 ## Contact Us
 
