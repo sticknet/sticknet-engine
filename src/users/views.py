@@ -1,6 +1,5 @@
-import random, re, names, requests
+import random, re, names, json
 from random import randrange
-from datetime import datetime
 
 from django.db.models import Q
 from django.template.loader import render_to_string
@@ -17,7 +16,7 @@ from firebase_admin import auth
 from django.utils import timezone
 
 from .serializers import UserSerializer, UserPublicSerializer, UserBaseSerializer, UserConnectionSerializer, \
-    ProfilePictureSerializer, ProfileCoverSerializer, UserBaseConnectionSerializer
+    ProfilePictureSerializer, ProfileCoverSerializer
 from .models import ProfilePicture, User, ProfileCover, LimitedAccessToken, Device, Preferences, AppSettings, \
     EmailVerification
 from photos.models import Image, Blob
@@ -30,9 +29,7 @@ from sticknet.settings import DEBUG
 from sticknet.permissions import LimitedAccessPermission
 from django.core.cache import cache
 from groups.serializers import CipherSerializer
-from notifications.models import Notification
-from socket import gethostname, gethostbyname
-
+from users.models import COLOR_CHOICES
 
 class CheckUsername(APIView):
 
@@ -709,243 +706,13 @@ class VerifyEmailCode(APIView):
             object.delete()
         return code_verified(request)
 
-    # elif status_code == 21002:  # receipt-data is malformed, or service experienced temporary issue. Try again
-    #     if attempts < 3:
-    #         itunes_verify_receipt(request, attempts+1)
-    #     else:
-    #         print("too many retries", status_code)
-    # elif status_code == 21003: # couldn't authenticate the receipt
-    #     print("couldn't authenticate")
-    # elif status_code == 21005: # The receipt server was temporarily unable to provide the receipt. Try again.
-    #     if attempts < 3:
-    #         itunes_verify_receipt(request, attempts+1)
-    #     else:
-    #         print("too many retries", status_code)
-    # elif status_code == 21009: # Internal data access error. Try again later.
-    #     if attempts < 3:
-    #         itunes_verify_receipt(request, attempts+1)
-    #     else:
-    #         print("too many retries", status_code)
-    # else:
-    #     print('unknown error')
-
-
-class CalcUsedSpace(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        total = 0
-        count = 0
-        user = User.objects.get(id=request.data['user_id'])
-        blobs = Blob.objects.filter(image__user=user)
-        for blob in blobs:
-            sizes = blob.file_size
-            count += 1
-            if sizes:
-                for size in sizes:
-                    total += size
-        return Response({"size": total, "count": count})
-
-
-class CalcUsedSpaceY(APIView):
-    def get(self, request):
-        total = 0
-        count = 0
-        user = User.objects.get(id=request.GET.get('id'))
-        blobs = Blob.objects.filter(image__user=user)
-        for blob in blobs:
-            sizes = blob.file_size
-            count += 1
-            if sizes:
-                for size in sizes:
-                    total += size
-        return Response({"size": total, "count": count})
-
-
-# import hashlib, base64
-# class HashPhoneNumbers(APIView):
-#
-#     def get(self, request):
-#         users = User.objects.all()
-#         for user in users:
-#             m = hashlib.sha256()
-#             m.update(str(user.phone).encode('utf-8'))
-#             res = base64.b64encode(m.digest())
-#             user.phone_hash = res.decode('utf-8')
-#             user.save()
-#         return Response({"success": True})
-
-class TestView(APIView):
-
-    def post(self, request):
-        print('received', request.data['user_id'])
-        return Response({"success": True})
-
-
-#
-# class TestUser(APIView):
-#
-#     def get(self, request):
-#         users = User.objects.filter(finished_registration=True)
-#         arr = []
-#         for user in users:
-#             ik = IdentityKey.objects.get(user=user, active=True)
-#             spk = SignedPreKey.objects.get(user=user, active=True)
-#             arr.append({"username": user.username, "activeIK": ik.id, "activeSPK": spk.id, "ik_timestamp": ik.timestamp,
-#                         "spk_timestamp": spk.timestamp, "ik_dt_timestamp": ik.dt_timestamp, "spk_dt_timestamp": spk.dt_timestamp})
-#         return Response({"response": arr})
-#
-#
-# class ListDecryptionKeys(APIView):
-#
-#     def get(self, request):
-#         keys = DecryptionSenderKey.objects.filter(stick_id__contains='73f50863-d7cf-4e77-9994-7891651b721a')
-#         resp = []
-#         for key in keys:
-#             resp.append({'id': key.id, 'ofUser': key.ofUser.username, 'forUser': key.forUser.username})
-#         return Response({'response': resp})
-
-class Test(APIView):
-
-    def get(self, request):
-        url = "http://169.254.169.254/latest/meta-data/public-ipv4"
-        r = requests.get(url)
-        instance_ip = r.text
-        instance_ip2 = gethostbyname(gethostname())
-        html_content = render_to_string('test.html', {'ip1': instance_ip, 'ip2': instance_ip2})
-        text_content = strip_tags(html_content)
-        mail = EmailMultiAlternatives('IP', text_content, 'founder@sticknet.org', ['founder@sticknet.org'])
-        mail.attach_alternative(html_content, "text/html")
-        mail.send()
-        return Response(status=status.HTTP_200_OK)
-
-
-class TestPary(APIView):
-
-    def get(self, request):
-        id = request.GET.get('id')
-        user = User.objects.get(id=id)
-        parties = user.parties.all()
-        l = []
-        for party in parties:
-            l.append(party.id)
-        html_content = render_to_string('testParty.html', {'ids': str(l)})
-        text_content = strip_tags(html_content)
-        mail = EmailMultiAlternatives('Test Party', text_content, 'founder@sticknet.org', ['founder@sticknet.org'])
-        mail.attach_alternative(html_content, "text/html")
-        mail.send()
-        return Response(status=status.HTTP_200_OK)
-
-
-def update_data(node):
-    if isinstance(node, dict):
-        keys_to_remove = []
-        for key, value in node.items():
-            if isinstance(key, str) and key.startswith("+"):
-                if isinstance(value, str):
-                    # Value is an 'auth.uid', directly update the key
-                    node[value] = node.pop(key)
-                elif isinstance(value, dict):
-                    # Determine the new key using auth.uid
-                    new_key = value.get("auth", {}).get("uid", "")
-                    if new_key:
-                        # Update the key directly in the dictionary
-                        node[new_key] = value
-                        keys_to_remove.append(key)
-            update_data(value)
-
-        # Remove the old keys
-        for old_key in keys_to_remove:
-            del node[old_key]
-
-
-data_path = '/Users/omar/dev/sticknet-engine/stiiick-chat.json'
-phone_uid_path = '/Users/omar/dev/sticknet-engine/uid.json'
-
-import json
-
-
-def replace_keys_and_values(data, phone_uid):
-    if isinstance(data, dict):
-        updated_data = {}
-        for key, value in data.items():
-            updated_key = phone_uid.get(key, key)
-            updated_value = replace_keys_and_values(value, phone_uid)
-            updated_data[updated_key] = updated_value
-        return updated_data
-    elif isinstance(data, list):
-        return [replace_keys_and_values(item, phone_uid) for item in data]
-    elif isinstance(data, str) and data.startswith("+"):
-        return phone_uid.get(data, data)
-    else:
-        return data
-
-
-from users.models import COLOR_CHOICES
-
-
-class TestViewX(APIView):
-    def get(self, request):
-        for user in User.objects.all():
-            user.color = random.choice([choice[0] for choice in COLOR_CHOICES])
-            user.save()
-        return Response(status=status.HTTP_200_OK)
-
-
-class MakeFirebaseData(APIView):
-    def get(self, request):
-        rooms = {}
-        users = {}
-        for group in Group.objects.all():
-            admins = {}
-            members = {}
-            for admin in group.admins.all():
-                admins[admin.id] = admin.id
-            for member in group.user_set.all():
-                members[member.id] = member.id
-            rooms[group.id] = {'creator': {group.owner.id: group.owner.id},
-                               'id': group.id,
-                               'auto-join': (not group.link_approval),
-                               'admins': admins,
-                               'members': members,
-                               'last-seen': {},
-                               'actions': {}}
-        for user in User.objects.all():
-            for party in user.chat_parties():
-                if not party.id in rooms and (party.connections.count() > 0 or party.individual == True):
-                    members = {}
-                    creator = None
-                    if party.user:
-                        members[party.user.id] = party.user.id
-                        creator = party.user
-                    for connection in party.connections.all():
-                        members[connection.id] = connection.id
-                        creator = connection
-                    rooms[party.id] = {'creator': creator.id,
-                                       'admins': {creator.id: creator.id},
-                                       'members': members,
-                                       'id': party.id,
-                                       'auto-join': False,
-                                       'last-seen': {},
-                                       'actions': {}}
-        for user in User.objects.all():
-            groups = {}
-            for group in user.groups.all():
-                groups[group.id] = group.id
-            users[user.id] = {'groups': groups,
-                              'active': {},
-                              'connection-requests': {},
-                              'new-connections': {},
-                              'blocked-me': {},
-                              'received-keys': {},
-                              'pending-keys': {}}
-        return Response({'rooms': rooms, 'users': users})
+############################################################################################################
 
 
 from sticknet.permissions import ServerAdminPermission
 
 
-## VIP TODO: next time email title should be "Sticknet" not "no-reply"
+## TODO: next time email title should be "Sticknet" not "no-reply"
 # Desktop UI can be improved
 class EmailReminder(APIView):
     permission_classes = [ServerAdminPermission]
@@ -962,14 +729,18 @@ class EmailReminder(APIView):
                 mail.send()
         return Response({})
 
+import requests
+from socket import gethostname, gethostbyname
+class TestIP(APIView):
 
-class DebugX(APIView):
     def get(self, request):
-        user = User.objects.get(username='tanya')
-        files = File.objects.filter(user=user)
-        total = 0
-        for file in files:
-            total += file.file_size
-            if file.preview_file_size:
-                total += file.preview_file_size
-        return Response({'total': total})
+        url = "http://169.254.169.254/latest/meta-data/public-ipv4"
+        r = requests.get(url)
+        instance_ip = r.text
+        instance_ip2 = gethostbyname(gethostname())
+        html_content = render_to_string('test.html', {'ip1': instance_ip, 'ip2': instance_ip2})
+        text_content = strip_tags(html_content)
+        mail = EmailMultiAlternatives('IP', text_content, 'founder@sticknet.org', ['founder@sticknet.org'])
+        mail.attach_alternative(html_content, "text/html")
+        mail.send()
+        return Response(status=status.HTTP_200_OK)

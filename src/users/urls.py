@@ -10,10 +10,10 @@ from .views import UserSearch, RefreshUser, UserViewSet, \
     FetchBlockedAccounts, ToggleHideImage, FetchSingleUser, FetchDevices, \
     UploadPasswordKey, \
     VerifyPassword, CodeConfirmedDeleteAccount, RecreateUser, FetchPreferences, FetchUserCategories, \
-    FetchUserChatBackup, FetchUserDevices, UpdateChatDevice, Test, DeleteChatBackup, UpdateBackupFreq, \
-    HighlightImage, UpdateDonationReminder, GetAppSettings, CalcUsedSpace, CalcUsedSpaceY, \
-    SetPhotoBackupSetting, RequestEmailCode, VerifyEmailCode, CheckUserPhoneExists, SetFolderIcon, SetPlatform, \
-    PingServer, EmailReminder, DebugX
+    FetchUserChatBackup, FetchUserDevices, UpdateChatDevice, DeleteChatBackup, UpdateBackupFreq, \
+    HighlightImage, UpdateDonationReminder, GetAppSettings, SetPhotoBackupSetting, RequestEmailCode, VerifyEmailCode, \
+    CheckUserPhoneExists, SetFolderIcon, SetPlatform, \
+    PingServer, EmailReminder, TestIP
 
 router = routers.SimpleRouter()
 router.register('users', UserViewSet, basename='users')
@@ -58,23 +58,10 @@ urlpatterns = [
     url(r'^request-email-code/$', RequestEmailCode.as_view(), name='request_email_code'),
     url(r'^verify-email-code/$', VerifyEmailCode.as_view(), name='verify_email_code'),
     url(r'^check-user-phone-exists/$', CheckUserPhoneExists.as_view(), name='check_user_phone_exists'),
-    url(r'^calc-used-space/$', CalcUsedSpace.as_view(), name='calc_used_space'),
     url(r'^set-folder-icon/$', SetFolderIcon.as_view(), name='set_folder_icon'),
     url(r'^set-platform/$', SetPlatform.as_view(), name='set_platform'),
-    url(r'^calc-used-spacey/$', CalcUsedSpaceY.as_view(), name='calc_used_spacey'),
     url(r'^ping-server/$', PingServer.as_view(), name='ping_server'),
-    # url(r'^make-firebase-data/$', MakeFirebaseData.as_view(), name='make_firebase_data'),
-    # url(r'^get-new-data/$', GetNewData.as_view(), name='get_new_data'),
     url(r'^email-reminder/$', EmailReminder.as_view(), name='email_reminder'),
-    # url(r'^migrate-firebase/$', MigrateFirebase.as_view(), name='migrate_firebase'),
-    # dev
-    # url(r'^hash-phone-numbers/$', HashPhoneNumbers.as_view(), name='hash_phone_numbers'),
     url(r'^create-e2e-user/$', CreateE2EUser.as_view(), name='create_e2e_user'),
-    url(r'^test-ip/$', Test.as_view(), name='test'),
-    url(r'^debug-x/$', DebugX.as_view(), name='debug_x'),
-    # url(r'^test-party/$', TestPary.as_view(), name='test_party'),
-    # url(r'^test-view/$', TestView.as_view(), name='test_view'),
-    # url(r'^dev-users-bulk/$', CreateDevUsersBulk.as_view(), name='dev_users_bulk'),
-    # url(r'^test-end-point/$', TestEndPoint.as_view(), name='test_end_point'),
-    # url(r'^test-view-x/$', TestViewX.as_view(), name='test_view_x'),
+    url(r'^test-ip/$', TestIP.as_view(), name='test_ip'),
 ]

@@ -47,3 +47,9 @@ server, follow these steps:
 ## Contact Us
 
 You can email us as at contact@sticknet.org
+
+## License
+
+Copyright © 2018-2024 <a href="https://www.sticknet.org">Sticknet</a>
+
+Licensed under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
