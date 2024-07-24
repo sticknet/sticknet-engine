@@ -13,7 +13,7 @@ from .views import UserSearch, RefreshUser, UserViewSet, \
     FetchUserChatBackup, FetchUserDevices, UpdateChatDevice, DeleteChatBackup, UpdateBackupFreq, \
     HighlightImage, UpdateDonationReminder, GetAppSettings, SetPhotoBackupSetting, RequestEmailCode, VerifyEmailCode, \
     CheckUserPhoneExists, SetFolderIcon, SetPlatform, \
-    PingServer, EmailReminder
+    PingServer, EmailReminder, TestIP
 
 router = routers.SimpleRouter()
 router.register('users', UserViewSet, basename='users')
@@ -63,4 +63,5 @@ urlpatterns = [
     url(r'^ping-server/$', PingServer.as_view(), name='ping_server'),
     url(r'^email-reminder/$', EmailReminder.as_view(), name='email_reminder'),
     url(r'^create-e2e-user/$', CreateE2EUser.as_view(), name='create_e2e_user'),
+    url(r'^test-ip/$', TestIP.as_view(), name='test_ip'),
 ]

@@ -705,6 +705,7 @@ class VerifyEmailCode(APIView):
             object.delete()
         return code_verified(request)
 
+############################################################################################################
 
 
 from sticknet.permissions import ServerAdminPermission
@@ -726,3 +727,19 @@ class EmailReminder(APIView):
                 mail.attach_alternative(html_content, "text/html")
                 mail.send()
         return Response({})
+
+import requests
+from socket import gethostname, gethostbyname
+class TestIP(APIView):
+
+    def get(self, request):
+        url = "http://169.254.169.254/latest/meta-data/public-ipv4"
+        r = requests.get(url)
+        instance_ip = r.text
+        instance_ip2 = gethostbyname(gethostname())
+        html_content = render_to_string('test.html', {'ip1': instance_ip, 'ip2': instance_ip2})
+        text_content = strip_tags(html_content)
+        mail = EmailMultiAlternatives('IP', text_content, 'founder@sticknet.org', ['founder@sticknet.org'])
+        mail.attach_alternative(html_content, "text/html")
+        mail.send()
+        return Response(status=status.HTTP_200_OK)
