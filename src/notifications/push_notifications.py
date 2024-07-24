@@ -196,21 +196,3 @@ class SetPushToken(APIView):
         else:
             current_token.update(fcm_token=data['fcm_token'], user=request.user)
         return Response(status=status.HTTP_200_OK)
-
-
-######################################################################################################################################################
-
-
-class TestNotification(APIView):
-
-    def post(self, request):
-        s = requests.Session()
-        # response = s.post('http://192.168.0.103:8000/api/test-notif2/')
-        # print("RESPONSE XXX", json.loads(response.text)['RES'])
-        # response = s.post('https://api.sandbox.push.apple.com:443',)
-        url = 'https://api.sandbox.push.apple.com:443'
-        body = {'name': 'Maryja'}
-        headers = {'content-type': 'application/json'}
-
-        r = requests.post(url, data=json.dumps(body), headers=headers)
-        return Response({"result": "ok!"})

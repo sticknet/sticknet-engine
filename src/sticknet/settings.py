@@ -40,7 +40,12 @@ if 'RDS_DB_NAME' in os.environ:
     CHAT_MEDIA_PATH = 'https://' + os.environ['STATIC_CDN'] + '/static/'
 else:
     DEBUG = True
-    load_dotenv(BASE_DIR + '/../.env.dev')
+    env_path = os.path.join(BASE_DIR, '../.env')
+    dev_env_path = os.path.join(BASE_DIR, '../.env.dev')
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+    else:
+        load_dotenv(dev_env_path)
     ALLOWED_HOSTS = ['*']
     DATABASES = {
         'default': {
@@ -152,7 +157,6 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
 STORJ_BUCKET_NAME = os.environ['STORJ_DEV_BUCKET_NAME'] if DEBUG else os.environ['STORJ_BUCKET_NAME']
 
-# print(os.environ['AWS_CLOUDFRONT_KEY'])
 # AWS_CLOUDFRONT_KEY = os.environ['AWS_CLOUDFRONT_KEY']
 # AWS_CLOUDFRONT_KEY_ID = os.environ['AWS_CLOUDFRONT_KEY_ID']
 # AWS_S3_CUSTOM_DOMAIN = os.environ['CDN']
