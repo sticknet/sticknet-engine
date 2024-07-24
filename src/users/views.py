@@ -29,6 +29,7 @@ from sticknet.settings import DEBUG
 from sticknet.permissions import LimitedAccessPermission
 from django.core.cache import cache
 from groups.serializers import CipherSerializer
+from users.models import COLOR_CHOICES
 
 class CheckUsername(APIView):
 
