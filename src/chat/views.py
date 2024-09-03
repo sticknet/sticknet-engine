@@ -12,7 +12,7 @@ from .serializers import ChatFileSerializer, get_album_cover
 from django.db.models import Q
 from photos.pagination import DynamicPagination
 from django.utils import timezone
-
+from vault.views import trim_file_name
 
 class UploadChatFiles(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -46,10 +46,11 @@ class UploadChatFiles(APIView):
                                                  auto_month=curr_month)
         for i in range(len(files)):
             file = files[i]
+            name = trim_file_name(file['name'])
             fileObject = ChatFile.objects.create(uri_key=file['uri_key'],
                                                  cipher=file['cipher'],
                                                  file_size=file['file_size'],
-                                                 name=file['name'],
+                                                 name=name,
                                                  type=file['type'],
                                                  duration=file['duration'],
                                                  created_at=file['created_at'],
