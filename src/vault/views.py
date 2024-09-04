@@ -31,6 +31,18 @@ class VaultNoteViewSet(viewsets.ModelViewSet):
         return FileSerializer.setup_eager_loading(qs)
 
 
+def trim_file_name(input_string):
+    if len(input_string) > 100:
+        last_dot_index = input_string.rfind('.')
+        if last_dot_index != -1:
+            characters_to_remove = len(input_string) - 100
+            trimmed_string = input_string[:last_dot_index - characters_to_remove] + input_string[last_dot_index:]
+        else:
+            trimmed_string = input_string[:100]
+    else:
+        trimmed_string = input_string
+    return trimmed_string
+
 class UploadFiles(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -47,10 +59,11 @@ class UploadFiles(APIView):
         album = None
         for i in range(len(files)):
             file = files[i]
+            name = trim_file_name(file['name'])
             fileObject = File.objects.create(uri_key=file['uri_key'],
                                              cipher=file['cipher'],
                                              file_size=file['file_size'],
-                                             name=file['name'],
+                                             name=name,
                                              type=file['type'],
                                              duration=file['duration'],
                                              folder=folder,
@@ -142,7 +155,7 @@ class RenameFile(APIView):
 
     def post(self, request):
         file = File.objects.get(user=request.user, id=request.data['id'])
-        file.name = request.data['name']
+        file.name = trim_file_name(request.data['name'])
         file.save()
         return Response({'name': file.name})
 
