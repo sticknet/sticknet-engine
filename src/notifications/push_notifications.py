@@ -1,7 +1,6 @@
 import traceback
 
 from rest_framework import status
-from rest_framework.utils import json
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -13,9 +12,6 @@ from .models import PNToken
 from stick_protocol.models import EncryptionSenderKey
 
 from firebase_admin import messaging
-
-import requests
-
 
 # multicastChannels = ['message_channel', 'post_channel', 'album_channel'], and sometimes group_channel
 
@@ -102,11 +98,12 @@ class PushNotificationMulticast(APIView):
                     user = user_id
                     if user.id == request.user.id:
                         continue
-                for token in user.pn_tokens.all():
-                    tokens.append(token.fcm_token)
-                    if token.platform == 'ios':
-                        apns_tokens.append(token.fcm_token)
-        sendMulticastPN(tokens, apns_tokens, data, notification, android_config, apns_config)
+                sendPN(user, data, notification, android_config, apns_config)
+                # for token in user.pn_tokens.all():
+                #     tokens.append(token.fcm_token)
+                #     if token.platform == 'ios':
+                #         apns_tokens.append(token.fcm_token)
+        # sendMulticastPN(tokens, apns_tokens, data, notification, android_config, apns_config)
         return Response(status=status.HTTP_200_OK)
 
 
