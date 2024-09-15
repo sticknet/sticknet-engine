@@ -28,7 +28,7 @@ constantly==15.1.0
 coreapi==2.3.3
 coreapi-cli==1.0.6
 coreschema==0.0.4
-cryptography==2.8
+cryptography==43.0.1
 daphne==2.2.2
 decorator==4.1.2
 Django==3.1.5
@@ -106,7 +106,7 @@ Pygments==2.2.0
 PyHamcrest==1.9.0
 pylibmc==1.6.1
 PyNaCl==1.4.0
-pyOpenSSL==19.1.0
+pyOpenSSL==24.2.1
 pyparsing==2.4.7
 python-dateutil==2.7.3
 python-decouple==3.3
