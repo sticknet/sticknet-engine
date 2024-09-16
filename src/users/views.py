@@ -129,7 +129,7 @@ def code_verified(request):
         LimitedAccessToken.objects.get(auth_id=auth_id).delete()
     LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=auth_id)
     if user:
-        if 'phone' in request.data or (not request.data['email'].endswith('@test.com') or request.data['email'] == 'e2e_1@test.com'):
+        if 'phone' in request.data or (not request.data['email'].endswith('@test.com')) or request.data['email'] == 'e2e_1@test.com':
             return Response({
                 "correct": True,
                 "exists": True,
@@ -680,7 +680,7 @@ class RequestEmailCode(APIView):
         registered = User.objects.filter(email=email).exists()
         if 'platform' in request.data and request.data['platform'] == 'web' and not registered:
             return Response({'registered': registered})
-        if DEBUG or email == 'apple@test.com' or email == 'google@test.com' or email.endswith('@test.com'):
+        if DEBUG or email.endswith('@storetest.com') or email.endswith('@test.com'):
             code = 123456
             EmailVerification.objects.create(email=email, code=code)
             return Response({'registered': registered})
