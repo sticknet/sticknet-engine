@@ -37,6 +37,7 @@ urlpatterns += [
     url(r'^api/', include('keys.urls', namespace='keys')),
     url(r'^api/', include('users.urls', namespace='users')),
     url(r'^api/', include('vault.urls', namespace='vault')),
+    url(r'^api/', include('wallet.urls', namespace='wallet')),
     url(r'^stick-protocol.pdf$', stick_protocol_paper, name='stick_protocol_paper'),
     re_path(r'^service-worker.js$', never_cache(serve), {
         'document_root': settings.STATIC_ROOT,

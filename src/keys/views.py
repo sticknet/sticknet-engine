@@ -24,6 +24,9 @@ class UploadPreKeyBundle(APIView):
         if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
             auth_id = request.data['ethereum_address']
             user = User.objects.get(ethereum_address=auth_id)
+        elif 'phone' in request.data and request.data['phone'] != None:
+            auth_id = request.data['phone']
+            user = User.objects.get(phone=auth_id)
         else:
             auth_id = request.data['email'].lower()
             user = User.objects.get(email=auth_id)
@@ -223,6 +226,9 @@ class Login(generics.GenericAPIView):
         if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
             auth_id = request.data['ethereum_address']
             user = User.objects.get(ethereum_address=auth_id)
+        elif 'phone' in request.data and request.data['phone'] != None:
+            auth_id = request.data['phone']
+            user = User.objects.get(phone=auth_id)
         else:
             auth_id = request.data['email'].lower()
             user = User.objects.get(email=auth_id)
@@ -266,8 +272,7 @@ class Login(generics.GenericAPIView):
                 device.auth_token.delete()
             device.auth_token = auth_token[0]
             device.save()
-            firebase_email = user.email or (user.ethereum_address + '@eth.com')
-            firebase_token = auth.create_custom_token(user.id, {'email': firebase_email}) if not TESTING else 'firebase_token'
+            firebase_token = auth.create_custom_token(user.id, {'email': user.get_firebase_email()}) if not TESTING else 'firebase_token'
             return Response({
                 "user": UserSerializer(user, context=self.get_serializer_context()).data,
                 "token": auth_token[1],

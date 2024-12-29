@@ -19,11 +19,11 @@ from .serializers import UserSerializer, UserPublicSerializer, UserBaseSerialize
     ProfilePictureSerializer, ProfileCoverSerializer
 from .models import ProfilePicture, User, ProfileCover, LimitedAccessToken, Device, Preferences, AppSettings, \
     EmailVerification
-from photos.models import Image, Blob
+from photos.models import Image
 from vault.models import File
 from stick_protocol.models import PreKey, EncryptionSenderKey
 from photos.pagination import DynamicPagination
-from groups.models import Cipher, Group
+from groups.models import Cipher
 from notifications.models import ConnectionRequest
 from sticknet.settings import DEBUG
 from sticknet.permissions import LimitedAccessPermission
@@ -122,6 +122,9 @@ def user_verified(request):
     if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
         auth_id = request.data['ethereum_address']
         user = User.objects.filter(ethereum_address=auth_id).first()
+    elif 'phone' in request.data and request.data['phone'] != None:
+        auth_id = request.data['phone']
+        user = User.objects.filter(phone=auth_id).first()
     else:
         auth_id = request.data['email'].lower()
         user = User.objects.filter(email=auth_id).first()
@@ -129,7 +132,10 @@ def user_verified(request):
         LimitedAccessToken.objects.get(auth_id=auth_id).delete()
     LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=auth_id)
     if user:
-        if 'ethereum_address' in request.data or (not request.data['email'].endswith('@test.com')) or request.data['email'] == 'e2e_1@test.com':
+        if ('ethereum_address' in request.data or
+                'phone' in request.data or
+                (not request.data['email'].endswith('@test.com'))or
+                request.data['email'] == 'e2e_1@test.com'):
             return {
                 "correct": True,
                 "exists": True,
@@ -151,10 +157,6 @@ class PhoneVerified(generics.GenericAPIView):
     def post(self, request):
         id_token = request.data['id_token']
         auth.verify_id_token(id_token)
-        return Response(user_verified(request))
-
-class WalletVerified(APIView):
-    def post(self, request):
         return Response(user_verified(request))
 
 
@@ -708,51 +710,6 @@ class VerifyEmailCode(APIView):
         else:
             object.delete()
         return Response(user_verified(request))
-
-
-import asyncio
-
-class GenerateNonce(APIView):
-    def get(self, request):
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        from siwe import generate_nonce
-        nonce = generate_nonce()
-        request.session['nonce'] = nonce
-        return Response(nonce, content_type='text/plain')
-
-class VerifySiwe(APIView):
-    def post(self, request):
-        from siwe import SiweMessage
-        message = request.data['message']
-        signature = request.data['signature']
-        try:
-            siwe_message = SiweMessage(message)
-            request.session['address'] = siwe_message.address
-            request.session['chain_id'] = siwe_message.chain_id
-            siwe_message.verify(signature=signature)
-            return Response(True)
-        except Exception as e:
-            return Response(False, status=400)
-
-class GetSession(APIView):
-    def get(self, request):
-        if not 'address' in request.session:
-            return Response({'exists': False})
-        return Response({'exists': True, 'address': request.session['address'], 'chain_id': request.session['chain_id']})
-
-class FlushSession(APIView):
-    def get(self, request):
-        request.session.flush()
-        return Response(status=status.HTTP_200_OK)
-
-
-class SetAccountSecret(APIView):
-    permission_classes = [LimitedAccessPermission]
-    def post(self, request):
-        user = User.objects.get(ethereum_address=request.data['ethereum_address'])
-        user.account_secret = request.data['account_secret']
-        user.save()
-        return Response(status=status.HTTP_200_OK)
 
 
 ############################################################################################################

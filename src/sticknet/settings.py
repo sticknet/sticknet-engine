@@ -97,7 +97,8 @@ PROJECT_APPS = [
     'stick_protocol',
     'keys',
     'iap',
-    'vault'
+    'vault',
+    'wallet'
 ]
 
 THIRD_PARTY_APPS = [

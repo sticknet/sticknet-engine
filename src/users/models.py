@@ -152,7 +152,7 @@ class User(AbstractUser):
     whitelist_premium = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.username) + ' - ' + str(self.email or self.ethereum_address)
+        return str(self.username) + ' - ' + str(self.email or self.ethereum_address or self.phone)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -165,7 +165,7 @@ class User(AbstractUser):
             firebase_ref = FIREBASE_REF_DEV if DEBUG else FIREBASE_REF
             db.reference('users/' + str(self.id), DEFAULT_APP, firebase_ref).delete()
             try:
-                firebase_email = self.email or (self.ethereum_address + '@eth.com')
+                firebase_email = self.get_firebase_email()
                 user = auth.get_user_by_email(firebase_email)
                 auth.delete_user(user.uid)
             except:
@@ -238,6 +238,9 @@ class User(AbstractUser):
         for connection in connections:
             ids.append(connection.id)
         return ids
+
+    def get_firebase_email(self):
+        return self.email or (self.ethereum_address + '@eth.com')
 
 class Device(models.Model):
     device_id = models.CharField(max_length=1000)
