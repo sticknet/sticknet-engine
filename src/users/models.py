@@ -113,6 +113,8 @@ class User(AbstractUser):
     stripe_customer_id = models.CharField(max_length=30, blank=True, null=True)
     password = models.CharField(max_length=1000, blank=True, null=True)
     password_salt = models.CharField(max_length=44, blank=True, null=True)
+    ethereum_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
+    account_secret = models.CharField(max_length=88, blank=True, null=True)
     phone = models.CharField(unique=True, max_length=50, blank=True, null=True)
     phone_hash = models.CharField(unique=True, max_length=44, blank=True, null=True)
     connections = models.ManyToManyField('User', blank=True)
@@ -150,7 +152,7 @@ class User(AbstractUser):
     whitelist_premium = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.username) + ' - ' + str(self.email or self.phone)
+        return str(self.username) + ' - ' + str(self.email or self.ethereum_address)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -163,7 +165,8 @@ class User(AbstractUser):
             firebase_ref = FIREBASE_REF_DEV if DEBUG else FIREBASE_REF
             db.reference('users/' + str(self.id), DEFAULT_APP, firebase_ref).delete()
             try:
-                user = auth.get_user_by_email(self.email)
+                firebase_email = self.email or (self.ethereum_address + '@eth.com')
+                user = auth.get_user_by_email(firebase_email)
                 auth.delete_user(user.uid)
             except:
                 print('no firebase user')

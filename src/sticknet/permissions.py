@@ -17,8 +17,8 @@ class LimitedAccessPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         token = request.META['HTTP_AUTHORIZATION']
-        if 'phone' in request.data and request.data['phone'] != None:
-            auth_id = request.data['phone']
+        if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+            auth_id = request.data['ethereum_address']
         else:
             auth_id = request.data['email'].lower()
         limited_access_token = LimitedAccessToken.objects.get(auth_id=auth_id)

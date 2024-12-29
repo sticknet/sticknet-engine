@@ -13,7 +13,7 @@ from .views import UserSearch, RefreshUser, UserViewSet, \
     FetchUserChatBackup, FetchUserDevices, UpdateChatDevice, DeleteChatBackup, UpdateBackupFreq, \
     HighlightImage, UpdateDonationReminder, GetAppSettings, SetPhotoBackupSetting, RequestEmailCode, VerifyEmailCode, \
     CheckUserPhoneExists, SetFolderIcon, SetPlatform, \
-    PingServer, EmailReminder, TestIP
+    PingServer, EmailReminder, TestIP, GenerateNonce, VerifySiwe, GetSession, FlushSession, WalletVerified, SetAccountSecret
 
 router = routers.SimpleRouter()
 router.register('users', UserViewSet, basename='users')
@@ -64,4 +64,10 @@ urlpatterns = [
     url(r'^email-reminder/$', EmailReminder.as_view(), name='email_reminder'),
     url(r'^create-e2e-user/$', CreateE2EUser.as_view(), name='create_e2e_user'),
     url(r'^test-ip/$', TestIP.as_view(), name='test_ip'),
+    url(r'^generate-nonce/$', GenerateNonce.as_view(), name='generate_nonce'),
+    url(r'^verify-siwe/$', VerifySiwe.as_view(), name='verify_siwe'),
+    url(r'^get-session/$', GetSession.as_view(), name='get_session'),
+    url(r'^flush-session/$', FlushSession.as_view(), name='flush_session'),
+    url(r'^wallet-verified/$', WalletVerified.as_view(), name='wallet_verified'),
+    url(r'^set-account-secret/$', SetAccountSecret.as_view(), name='set_account_secret'),
 ]

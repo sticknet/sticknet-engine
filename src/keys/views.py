@@ -21,9 +21,9 @@ class UploadPreKeyBundle(APIView):
     permission_classes = [LimitedAccessPermission]
 
     def post(self, request):
-        if 'phone' in request.data:
-            auth_id = request.data['phone']
-            user = User.objects.get(phone=auth_id)
+        if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+            auth_id = request.data['ethereum_address']
+            user = User.objects.get(ethereum_address=auth_id)
         else:
             auth_id = request.data['email'].lower()
             user = User.objects.get(email=auth_id)
@@ -205,7 +205,7 @@ class UpdateActiveIK(APIView):
 
 class Login(generics.GenericAPIView):
     """
-    This Login method should be called after the user have verified their phone number and got their LimitedAccessToken.
+    This Login method should be called after the user have verified their email/ethereum_address and got their LimitedAccessToken.
     As a 2FA mechanism, the user need to provide their password. If the password is correct, return to the user their keys:
         * Identity Key
         * Signed Pre Key
@@ -220,9 +220,9 @@ class Login(generics.GenericAPIView):
 
     def post(self, request):
         blocked = False
-        if 'phone' in request.data:
-            auth_id = request.data['phone']
-            user = User.objects.get(phone=auth_id)
+        if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+            auth_id = request.data['ethereum_address']
+            user = User.objects.get(ethereum_address=auth_id)
         else:
             auth_id = request.data['email'].lower()
             user = User.objects.get(email=auth_id)
@@ -266,7 +266,8 @@ class Login(generics.GenericAPIView):
                 device.auth_token.delete()
             device.auth_token = auth_token[0]
             device.save()
-            firebase_token = auth.create_custom_token(user.id, {'email': user.email}) if not TESTING else 'firebase_token'
+            firebase_email = user.email or (user.ethereum_address + '@eth.com')
+            firebase_token = auth.create_custom_token(user.id, {'email': firebase_email}) if not TESTING else 'firebase_token'
             return Response({
                 "user": UserSerializer(user, context=self.get_serializer_context()).data,
                 "token": auth_token[1],
@@ -289,9 +290,9 @@ class WebLogin(generics.GenericAPIView):
 
     def post(self, request):
         blocked = False
-        if 'phone' in request.data and request.data['phone'] != None:
-            auth_id = request.data['phone']
-            user = User.objects.get(phone=auth_id)
+        if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+            auth_id = request.data['ethereum_address']
+            user = User.objects.get(ethereum_address=auth_id)
         else:
             auth_id = request.data['email'].lower()
             user = User.objects.get(email=auth_id)

@@ -115,13 +115,13 @@ def getUniqueUsername(username):
     return temp_username
 
 
-def code_verified(request):
+def user_verified(request):
     token = create_token_string()
     salt = create_salt_string()
     hash = hash_token(token, salt)
-    if 'phone' in request.data:
-        auth_id = request.data['phone']
-        user = User.objects.filter(phone=auth_id).first()
+    if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+        auth_id = request.data['ethereum_address']
+        user = User.objects.filter(ethereum_address=auth_id).first()
     else:
         auth_id = request.data['email'].lower()
         user = User.objects.filter(email=auth_id).first()
@@ -129,8 +129,8 @@ def code_verified(request):
         LimitedAccessToken.objects.get(auth_id=auth_id).delete()
     LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=auth_id)
     if user:
-        if 'phone' in request.data or (not request.data['email'].endswith('@test.com')) or request.data['email'] == 'e2e_1@test.com':
-            return Response({
+        if 'ethereum_address' in request.data or (not request.data['email'].endswith('@test.com')) or request.data['email'] == 'e2e_1@test.com':
+            return {
                 "correct": True,
                 "exists": True,
                 "limited_access_token": token,
@@ -138,11 +138,12 @@ def code_verified(request):
                 "username": user.username,
                 "finished_registration": user.finished_registration,
                 "password_salt": user.password_salt,
-                "password_key": user.password_key
-            })
+                "password_key": user.password_key,
+                "account_secret": user.account_secret
+            }
         else:
             delete_user(user)
-    return Response({"exists": False, "limited_access_token": token, "correct": True})
+    return {"exists": False, "limited_access_token": token, "correct": True}
 
 
 class PhoneVerified(generics.GenericAPIView):
@@ -150,7 +151,11 @@ class PhoneVerified(generics.GenericAPIView):
     def post(self, request):
         id_token = request.data['id_token']
         auth.verify_id_token(id_token)
-        return code_verified(request)
+        return Response(user_verified(request))
+
+class WalletVerified(APIView):
+    def post(self, request):
+        return Response(user_verified(request))
 
 
 class CheckUserPhoneExists(APIView):
@@ -169,15 +174,12 @@ class Register(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
-        exists = User.objects.filter(
-            Q(username=data.get('username')) |
-            Q(email=data.get('email'))
-        ).exists()
+        exists = User.objects.filter(username=data.get('username')).exists()
         if not exists:
-            if 'phone' in data:
-                user = User.objects.create(phone=data['phone'], phone_hash=data['phone_hash'],
+            if 'ethereum_address' in data:
+                user = User.objects.create(ethereum_address=data['ethereum_address'],
                                            username=data['username'].lower(),
-                                           name=data['name'], dial_code=data['dial_code'], country=data['country'],
+                                           name=data['name'],
                                            platform=data['platform'])
             else:
                 user = User.objects.create(email=data['email'].lower(), username=data['username'].lower(),
@@ -705,7 +707,53 @@ class VerifyEmailCode(APIView):
             return Response({'correct': False})
         else:
             object.delete()
-        return code_verified(request)
+        return Response(user_verified(request))
+
+
+import asyncio
+
+class GenerateNonce(APIView):
+    def get(self, request):
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        from siwe import generate_nonce
+        nonce = generate_nonce()
+        request.session['nonce'] = nonce
+        return Response(nonce, content_type='text/plain')
+
+class VerifySiwe(APIView):
+    def post(self, request):
+        from siwe import SiweMessage
+        message = request.data['message']
+        signature = request.data['signature']
+        try:
+            siwe_message = SiweMessage(message)
+            request.session['address'] = siwe_message.address
+            request.session['chain_id'] = siwe_message.chain_id
+            siwe_message.verify(signature=signature)
+            return Response(True)
+        except Exception as e:
+            return Response(False, status=400)
+
+class GetSession(APIView):
+    def get(self, request):
+        if not 'address' in request.session:
+            return Response({'exists': False})
+        return Response({'exists': True, 'address': request.session['address'], 'chain_id': request.session['chain_id']})
+
+class FlushSession(APIView):
+    def get(self, request):
+        request.session.flush()
+        return Response(status=status.HTTP_200_OK)
+
+
+class SetAccountSecret(APIView):
+    permission_classes = [LimitedAccessPermission]
+    def post(self, request):
+        user = User.objects.get(ethereum_address=request.data['ethereum_address'])
+        user.account_secret = request.data['account_secret']
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
 
 ############################################################################################################
 
