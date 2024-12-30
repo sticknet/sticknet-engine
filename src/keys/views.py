@@ -314,15 +314,11 @@ class WebLogin(generics.GenericAPIView):
             user.save()
             LimitedAccessToken.objects.get(auth_id=auth_id).delete()
             auth_token = AuthToken.objects.create(user)
-            # device = Device.objects.get(user=user, device_id=request.data['device_id'])
-            # if device.auth_token:
-            #     device.auth_token.delete()
-            # device.auth_token = auth_token[0]
-            # device.save()
             return Response({
                 "user": UserSerializer(user, context=self.get_serializer_context()).data,
                 "token": auth_token[1],
                 "correct": True,
+                "web_key": user.web_key
             })
         user.password_trials += 1
         if user.password_trials == 15:

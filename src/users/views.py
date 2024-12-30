@@ -242,15 +242,19 @@ class RefreshUser(generics.GenericAPIView):
             if notification.read == False:
                 unread_count += 1
         firebase_token = None
+        web_key = None
         if "should_get_firebase_token" in request.GET:
             should_get_firebase_token = json.loads(request.GET.get("should_get_firebase_token"))
             if should_get_firebase_token:
                 firebase_token = auth.create_custom_token(user.id, {'email': user.email})
+        if 'web' in request.GET:
+            web_key = user.web_key
         data = {
             'user': self.serializer_class(user, context=self.get_serializer_context()).data,
             'pre_keys_count': pre_keys_count,
             'unread_count': unread_count,
-            'firebase_token': firebase_token
+            'firebase_token': firebase_token,
+            'web_key': web_key
         }
         return Response(data)
 
@@ -710,6 +714,20 @@ class VerifyEmailCode(APIView):
         else:
             object.delete()
         return Response(user_verified(request))
+
+class SetWebKey(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        request.user.web_key = request.data['web_key']
+        request.user.save()
+        return Response(status=status.HTTP_200_OK)
+
+class GetWebKey(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        return Response({'web_key': request.user.web_key})
+
+
 
 
 ############################################################################################################

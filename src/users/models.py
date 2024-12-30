@@ -115,6 +115,7 @@ class User(AbstractUser):
     password_salt = models.CharField(max_length=44, blank=True, null=True)
     ethereum_address = models.CharField(max_length=42, unique=True, blank=True, null=True)
     account_secret = models.CharField(max_length=88, blank=True, null=True)
+    web_key = models.CharField(max_length=44, blank=True, null=True)
     phone = models.CharField(unique=True, max_length=50, blank=True, null=True)
     phone_hash = models.CharField(unique=True, max_length=44, blank=True, null=True)
     connections = models.ManyToManyField('User', blank=True)
