@@ -1,6 +1,4 @@
-import asyncio
-
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -10,7 +8,6 @@ from sticknet.permissions import LimitedAccessPermission
 
 class GenerateNonce(APIView):
     def get(self, request):
-        asyncio.set_event_loop(asyncio.new_event_loop())
         from siwe import generate_nonce
         nonce = generate_nonce()
         request.session['nonce'] = nonce
@@ -26,9 +23,10 @@ class VerifySiwe(APIView):
             request.session['address'] = siwe_message.address
             request.session['chain_id'] = siwe_message.chain_id
             siwe_message.verify(signature=signature)
-            return Response(True)
+            request.data['ethereum_address'] = siwe_message.address
+            return Response(user_verified(request))
         except Exception as e:
-            return Response(False, status=400)
+            return Response({'correct': False}, status=400)
 
 class GetSession(APIView):
     def get(self, request):
@@ -51,6 +49,11 @@ class SetAccountSecret(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class WalletVerified(APIView):
-    def post(self, request):
-        return Response(user_verified(request))
+# class GetAccountSecret(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+#     def post(self, request):
+#         return Response({'account_secret': request.user.account_secret})
+#
+# class WalletVerified(APIView):
+#     def post(self, request):
+#         return Response(user_verified(request))

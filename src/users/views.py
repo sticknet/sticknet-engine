@@ -618,7 +618,7 @@ class DeleteAccount(APIView):
         correct_token = False
         token = request.data['delete_account_token']
         user = request.user
-        limited_access_token = LimitedAccessToken.objects.get(auth_id=user.email)
+        limited_access_token = LimitedAccessToken.objects.get(auth_id=user.email or user.ethereum_address)
         hashed_token = hash_token(token, limited_access_token.salt)
         if hashed_token == limited_access_token.hash:
             correct_token = True
