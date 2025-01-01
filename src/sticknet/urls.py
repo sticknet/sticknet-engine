@@ -10,7 +10,7 @@ from .admin_site import admin_site
 from django.views.decorators.cache import never_cache
 from django.views.static import serve
 
-from support.views import stick_protocol_paper
+from support.views import stick_protocol_paper, apple_app_site_association
 
 favicon_url = '/public/favicon.ico' if settings.DEBUG else 'https://d3vpnljghm98zc.cloudfront.net/public/favicon.ico'
 favicon_view = RedirectView.as_view(url=favicon_url, permanent=True)
@@ -39,6 +39,7 @@ urlpatterns += [
     url(r'^api/', include('vault.urls', namespace='vault')),
     url(r'^api/', include('wallet.urls', namespace='wallet')),
     url(r'^stick-protocol.pdf$', stick_protocol_paper, name='stick_protocol_paper'),
+    url(r'^.well-known/apple-app-site-association$', apple_app_site_association, name='apple_app_site_association'),
     re_path(r'^service-worker.js$', never_cache(serve), {
         'document_root': settings.STATIC_ROOT,
         'path': 'service-worker.js'
