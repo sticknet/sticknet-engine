@@ -95,9 +95,3 @@ def stick_protocol_paper(request):
     response = HttpResponse(file.uri, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="stick-protocol.pdf"'
     return response
-
-def apple_app_site_association(request):
-    file = PublicFile.objects.get(name='apple-app-site-association')
-    response = HttpResponse(file.uri)
-    return response
-
