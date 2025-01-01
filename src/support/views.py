@@ -95,5 +95,3 @@ def stick_protocol_paper(request):
     response = HttpResponse(file.uri, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="stick-protocol.pdf"'
     return response
-
-

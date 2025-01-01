@@ -19,11 +19,11 @@ from .serializers import UserSerializer, UserPublicSerializer, UserBaseSerialize
     ProfilePictureSerializer, ProfileCoverSerializer
 from .models import ProfilePicture, User, ProfileCover, LimitedAccessToken, Device, Preferences, AppSettings, \
     EmailVerification
-from photos.models import Image, Blob
+from photos.models import Image
 from vault.models import File
 from stick_protocol.models import PreKey, EncryptionSenderKey
 from photos.pagination import DynamicPagination
-from groups.models import Cipher, Group
+from groups.models import Cipher
 from notifications.models import ConnectionRequest
 from sticknet.settings import DEBUG
 from sticknet.permissions import LimitedAccessPermission
@@ -115,11 +115,14 @@ def getUniqueUsername(username):
     return temp_username
 
 
-def code_verified(request):
+def user_verified(request):
     token = create_token_string()
     salt = create_salt_string()
     hash = hash_token(token, salt)
-    if 'phone' in request.data:
+    if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
+        auth_id = request.data['ethereum_address']
+        user = User.objects.filter(ethereum_address=auth_id).first()
+    elif 'phone' in request.data and request.data['phone'] != None:
         auth_id = request.data['phone']
         user = User.objects.filter(phone=auth_id).first()
     else:
@@ -129,8 +132,11 @@ def code_verified(request):
         LimitedAccessToken.objects.get(auth_id=auth_id).delete()
     LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=auth_id)
     if user:
-        if 'phone' in request.data or (not request.data['email'].endswith('@test.com')) or request.data['email'] == 'e2e_1@test.com':
-            return Response({
+        if ('ethereum_address' in request.data or
+                'phone' in request.data or
+                (not request.data['email'].endswith('@test.com'))or
+                request.data['email'] == 'e2e_1@test.com'):
+            return {
                 "correct": True,
                 "exists": True,
                 "limited_access_token": token,
@@ -138,11 +144,12 @@ def code_verified(request):
                 "username": user.username,
                 "finished_registration": user.finished_registration,
                 "password_salt": user.password_salt,
-                "password_key": user.password_key
-            })
+                "password_key": user.password_key,
+                "account_secret": user.account_secret
+            }
         else:
             delete_user(user)
-    return Response({"exists": False, "limited_access_token": token, "correct": True})
+    return {"exists": False, "limited_access_token": token, "correct": True}
 
 
 class PhoneVerified(generics.GenericAPIView):
@@ -150,7 +157,7 @@ class PhoneVerified(generics.GenericAPIView):
     def post(self, request):
         id_token = request.data['id_token']
         auth.verify_id_token(id_token)
-        return code_verified(request)
+        return Response(user_verified(request))
 
 
 class CheckUserPhoneExists(APIView):
@@ -169,15 +176,12 @@ class Register(generics.GenericAPIView):
 
     def post(self, request):
         data = request.data
-        exists = User.objects.filter(
-            Q(username=data.get('username')) |
-            Q(email=data.get('email'))
-        ).exists()
+        exists = User.objects.filter(username=data.get('username')).exists()
         if not exists:
-            if 'phone' in data:
-                user = User.objects.create(phone=data['phone'], phone_hash=data['phone_hash'],
+            if 'ethereum_address' in data:
+                user = User.objects.create(ethereum_address=data['ethereum_address'],
                                            username=data['username'].lower(),
-                                           name=data['name'], dial_code=data['dial_code'], country=data['country'],
+                                           name=data['name'],
                                            platform=data['platform'])
             else:
                 user = User.objects.create(email=data['email'].lower(), username=data['username'].lower(),
@@ -238,15 +242,19 @@ class RefreshUser(generics.GenericAPIView):
             if notification.read == False:
                 unread_count += 1
         firebase_token = None
+        web_key = None
         if "should_get_firebase_token" in request.GET:
             should_get_firebase_token = json.loads(request.GET.get("should_get_firebase_token"))
             if should_get_firebase_token:
                 firebase_token = auth.create_custom_token(user.id, {'email': user.email})
+        if 'web' in request.GET:
+            web_key = user.web_key
         data = {
             'user': self.serializer_class(user, context=self.get_serializer_context()).data,
             'pre_keys_count': pre_keys_count,
             'unread_count': unread_count,
-            'firebase_token': firebase_token
+            'firebase_token': firebase_token,
+            'web_key': web_key
         }
         return Response(data)
 
@@ -610,7 +618,7 @@ class DeleteAccount(APIView):
         correct_token = False
         token = request.data['delete_account_token']
         user = request.user
-        limited_access_token = LimitedAccessToken.objects.get(auth_id=user.email)
+        limited_access_token = LimitedAccessToken.objects.get(auth_id=user.email or user.ethereum_address)
         hashed_token = hash_token(token, limited_access_token.salt)
         if hashed_token == limited_access_token.hash:
             correct_token = True
@@ -705,7 +713,22 @@ class VerifyEmailCode(APIView):
             return Response({'correct': False})
         else:
             object.delete()
-        return code_verified(request)
+        return Response(user_verified(request))
+
+class SetWebKey(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request):
+        request.user.web_key = request.data['web_key']
+        request.user.save()
+        return Response(status=status.HTTP_200_OK)
+
+class GetWebKey(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self, request):
+        return Response({'web_key': request.user.web_key})
+
+
+
 
 ############################################################################################################
 
