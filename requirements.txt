@@ -49,7 +49,7 @@ firebase-admin==4.3.0
 fsspec==2025.2.0
 =======
 ffmpeg-python==0.2.0
-firebase-admin==6.5.0
+firebase-admin==4.3.0
 fsspec==0.4.1
 >>>>>>> 1fb3e04 (fix: pn multicast)
 future==0.16.0
