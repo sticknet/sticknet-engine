@@ -2,10 +2,11 @@
 set -e
 
 # --------------------------------------------
-# 1. Install PostgreSQL system packages (versioned)
+# 1. Install PostgreSQL system packages (for AL2023)
 # --------------------------------------------
-# For Amazon Linux 2023, install the versioned PostgreSQL packages.
-yum install -y postgresql15 postgresql15-devel
+# On Amazon Linux 2023, install the PostgreSQL client
+# and the development headers from libpq-devel.
+yum install -y libpq-devel
 
 # --------------------------------------------
 # 2. Activate the virtual environment
@@ -19,7 +20,10 @@ source /var/app/venv/*/bin/activate
 # 3. Install Python packages
 # --------------------------------------------
 # You can install packages directly here via pip or install from requirements.txt.
+# Here we install Django and psycopg2-binary (which uses the libpq headers above).
+pip install Django psycopg2-binary
 
+# If a requirements.txt file exists, install any additional packages.
 if [ -f /var/app/current/requirements.txt ]; then
     pip install -r /var/app/current/requirements.txt
 fi
