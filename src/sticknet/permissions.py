@@ -17,6 +17,7 @@ class LimitedAccessPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         token = request.META['HTTP_AUTHORIZATION']
+        print('ddd', request.data)
         if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
             auth_id = request.data['ethereum_address']
         elif 'phone' in request.data and request.data['phone'] != None:
