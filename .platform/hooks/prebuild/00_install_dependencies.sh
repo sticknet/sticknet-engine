@@ -21,7 +21,7 @@ source /var/app/venv/*/bin/activate
 # --------------------------------------------
 # You can install packages directly here via pip or install from requirements.txt.
 # Here we install Django and psycopg2-binary (which uses the libpq headers above).
-pip install Django psycopg2-binary
+pip install --upgrade pip setuptools wheel
 
 # If a requirements.txt file exists, install any additional packages.
 if [ -f /var/app/current/requirements.txt ]; then
