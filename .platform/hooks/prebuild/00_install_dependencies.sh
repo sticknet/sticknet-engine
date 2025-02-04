@@ -6,7 +6,7 @@ set -e
 # --------------------------------------------
 # On Amazon Linux 2023, install the PostgreSQL client
 # and the development headers from libpq-devel.
-yum install -y libpq-devel libmemcached-devel
+yum install -y libpq-devel libmemcached-devel zlib-devel
 
 # --------------------------------------------
 # 2. Activate the virtual environment
