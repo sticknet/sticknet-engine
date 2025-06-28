@@ -201,7 +201,7 @@ class WebCheckout(APIView):
 
             )
         except Exception as e:
-            print('EXCEPTIONX', e)
+            print('EXCEPTION', e)
             return Response({'success': False})
         return Response({'success': True, 'url': checkout_session.url})
 

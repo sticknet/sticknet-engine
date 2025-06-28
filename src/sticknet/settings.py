@@ -2,19 +2,18 @@ import os, requests, socket, sys
 from socket import gethostname, gethostbyname
 import firebase_admin
 from firebase_admin import credentials
+from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
 
 if 'RDS_DB_NAME' in os.environ:
     DEBUG = False
     PREPEND_WWW = True
     ALLOWED_HOSTS = ['sticknet.org', 'www.sticknet.org', 'www.stiiick.com',
                      'stiiick.com', 'localhost',
-                     'sticknet-engine-v02.eu-central-1.elasticbeanstalk.com',
-                     'www.sticknet-engine-v02.eu-central-1.elasticbeanstalk.com'
+                     'sticknet-engine-v04.eu-central-1.elasticbeanstalk.com',
+                     'www.sticknet-engine-v04.eu-central-1.elasticbeanstalk.com'
                      '169.254.169.254']
     url = "http://169.254.169.254/latest/meta-data/public-ipv4"
     r = requests.get(url)
@@ -41,6 +40,12 @@ if 'RDS_DB_NAME' in os.environ:
     CHAT_MEDIA_PATH = 'https://' + os.environ['STATIC_CDN'] + '/static/'
 else:
     DEBUG = True
+    env_path = os.path.join(BASE_DIR, '../.env')
+    dev_env_path = os.path.join(BASE_DIR, '../.env.dev')
+    if os.path.exists(env_path):
+        load_dotenv(env_path)
+    else:
+        load_dotenv(dev_env_path)
     ALLOWED_HOSTS = ['*']
     DATABASES = {
         'default': {
@@ -66,17 +71,10 @@ else:
     MEDIAFILES_LOCATION = 'media'
     PUBLICFILES_LOCATION = 'public'
 
-    # CACHE_HOST = '127.0.0.1'
-    # CACHE_PORT = 11211
-    # CACHES = {
-    #     'default': {
-    #         'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-    #         'LOCATION': '127.0.0.1:11211',
-    #     }
-    # }
-    # SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ['SECRET_KEY']
 
-TESTING = sys.argv[1:2] == ['test']
+TESTING = sys.argv[1:2] == ['test'] or 'DEV' in os.environ
 if not TESTING:
     CRED = credentials.Certificate(os.environ['FIREBASE_CREDENTIALS'])
 DEFAULT_APP = firebase_admin.initialize_app(CRED) if not TESTING else None
@@ -99,7 +97,8 @@ PROJECT_APPS = [
     'stick_protocol',
     'keys',
     'iap',
-    'vault'
+    'vault',
+    'wallet'
 ]
 
 THIRD_PARTY_APPS = [
@@ -159,7 +158,6 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 
 STORJ_BUCKET_NAME = os.environ['STORJ_DEV_BUCKET_NAME'] if DEBUG else os.environ['STORJ_BUCKET_NAME']
 
-# print(os.environ['AWS_CLOUDFRONT_KEY'])
 # AWS_CLOUDFRONT_KEY = os.environ['AWS_CLOUDFRONT_KEY']
 # AWS_CLOUDFRONT_KEY_ID = os.environ['AWS_CLOUDFRONT_KEY_ID']
 # AWS_S3_CUSTOM_DOMAIN = os.environ['CDN']

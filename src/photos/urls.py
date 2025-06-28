@@ -3,8 +3,7 @@ from rest_framework import routers
 
 from .views import ImageViewSet, AlbumViewSet, \
     AlbumDetailAPIView, SharedImages, LatestShared, DeleteReactionNote, FetchNotes, \
-    FetchAlbumNotes, SharedByOthers, YoutubeShare, AlbumImagesUris, ReactionsCount, Test, TestHost, \
-    CipherImageView, CipherImageView2, HighlightedImages, ToggleLike, GetPresignedUrl, UploadImages, \
+    FetchAlbumNotes, SharedByOthers, YoutubeShare, AlbumImagesUris, ReactionsCount, HighlightedImages, ToggleLike, UploadImages, \
     HiddenImages, IsProfileImages, FetchSingleAlbum, DeleteAlbum, DeleteNote, NoteViewSet, FetchImageAudioUri, \
     GroupSharedImages, EditNote, ToggleFavorite, FavoriteImages, SelectedBlobsView, \
     DeleteBlob, ChangeAlbumCover, FetchBlobUri, YoutubeRestick, SelectedBlobsImageView, ConnectionImages
@@ -38,12 +37,7 @@ urlpatterns = [
     url(r'^selected-blobs/$', SelectedBlobsView.as_view(), name='selected-blobs'),
     url(r'^selected-blobs-image/$', SelectedBlobsImageView.as_view(), name='selected-blobs-image'),
     url(r'^reactions-count/$', ReactionsCount.as_view(), name='reactions_count'),
-    url(r'^test/$', Test.as_view(), name='test'),
-    url(r'^test-host/$', TestHost.as_view(), name='test_host'),
-    url(r'^cipher-image/$', CipherImageView.as_view(), name='cipher_image'),
-    url(r'^cipher-image2/$', CipherImageView2.as_view(), name='cipher_image2'),
     url(r'^like/$', ToggleLike.as_view(), name='toggle_like'),
-    url(r'^get-presigned-url/$', GetPresignedUrl.as_view(), name='get_presigned_url'),
     url(r'^upload-images/$', UploadImages.as_view(), name='upload_images'),
     url(r'^fetch-hidden-images/$', HiddenImages.as_view(), name='fetch_hidden_images'),
     url(r'^fetch-image-audio-uri/$', FetchImageAudioUri.as_view(), name='fetch_image_audio_uri'),
