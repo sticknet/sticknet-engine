@@ -8,5 +8,8 @@ User = get_user_model()
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        if not User.objects.filter(username=os.environ['SUPER_USER_USERNAME']).exists():
-            User.objects.create_superuser(os.environ['SUPER_USER_USERNAME'], os.environ['SUPER_USER_EMAIL'], os.environ['SUPER_USER_PASSWORD'])
+        user = User.objects.get(username=os.environ['SUPER_USER_USERNAME'])
+        user.set_password(os.environ['SUPER_USER_PASSWORD'])
+        user.save()
+        # if not User.objects.filter(username=os.environ['SUPER_USER_USERNAME']).exists():
+        #     User.objects.create_superuser(os.environ['SUPER_USER_USERNAME'], os.environ['SUPER_USER_EMAIL'], os.environ['SUPER_USER_PASSWORD'])

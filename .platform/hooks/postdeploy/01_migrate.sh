@@ -10,3 +10,4 @@ fi
 echo "Activating virtual environment and running migrations..."
 source /var/app/venv/*/bin/activate
 python3 /var/app/current/src/manage.py migrate --noinput
+python3 /var/app/current/src/manage.py createsu
