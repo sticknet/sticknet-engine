@@ -86,8 +86,7 @@ Pillow==11.1.0
 prompt-toolkit==3.0.14
 proto-plus==1.17.0
 protobuf==3.19.5
-psycopg2==2.8.4
-psycopg2-binary==2.8.4
+psycopg2-binary==2.9.9
 ptyprocess==0.5.2
 pyasn1==0.4.5
 pyasn1-modules==0.2.4

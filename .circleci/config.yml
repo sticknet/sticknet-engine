@@ -17,7 +17,7 @@ jobs:
           name: Install system dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y libmemcached-dev build-essential
+            sudo apt-get install -y build-essential libpq-dev libmemcached-dev
       - run:
           name: Activate env
           command: "python3 -m venv env && source env/bin/activate"
