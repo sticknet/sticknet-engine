@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.11
         environment:
           TEST_DATABASE_URL: postgresql://postgres@localhost/circle_test
       - image: cimg/postgres:14.6
@@ -17,7 +17,7 @@ jobs:
           name: Install system dependencies
           command: |
             sudo apt-get update
-            sudo apt-get install -y libmemcached-dev build-essential
+            sudo apt-get install -y build-essential libpq-dev libmemcached-dev
       - run:
           name: Activate env
           command: "python3 -m venv env && source env/bin/activate"
