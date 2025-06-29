@@ -82,7 +82,7 @@ paramiko==2.7.1
 pathspec==0.10.1
 pexpect==4.8.0
 pickleshare==0.7.4
-Pillow==11.1.0
+Pillow==10.4.0
 prompt-toolkit==3.0.14
 proto-plus==1.17.0
 protobuf==3.19.5
