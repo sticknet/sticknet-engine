@@ -100,12 +100,12 @@ pyparsing==2.4.7
 python-dateutil==2.8.2
 python-decouple==3.3
 python-dotenv==0.21.1
-pytz==2017.2
+pytz>=2023.3
 PyYAML==5.3.1
 qrcode==7.1
 redis==2.10.6
 requests==2.32.3
-rsa==3.4.2
+rsa==4.7
 s3transfer==0.10.0
 semantic-version==2.10.0
 service-identity==17.0.0
@@ -113,7 +113,7 @@ shutilwhich==1.1.0
 simplegeneric==0.8.1
 siwe==2.0.0
 six==1.13.0
-sqlparse==0.3.0
+sqlparse==0.5.0
 stick-protocol-server==1.2.10
 stripe==7.0.0
 tabulate==0.7.5
@@ -124,7 +124,7 @@ Twisted==21.2.0
 txaio==18.8.1
 uritemplate==3.0.0
 urllib3==1.26.5
-virtualenv==15.1.0
+virtualenv==20.26.6
 wcwidth==0.2.13
 websocket-client==0.49.0
 zope.interface==5.1.0
