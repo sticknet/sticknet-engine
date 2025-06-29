@@ -688,11 +688,11 @@ class RequestEmailCode(APIView):
         registered = User.objects.filter(email=email).exists()
         if 'platform' in request.data and request.data['platform'] == 'web' and not registered:
             return Response({'registered': registered})
-        if DEBUG or email.endswith('@storetest.com') or email.endswith('@test.com'):
-            code = 123456
-            EmailVerification.objects.filter(email=email).all().delete()
-            EmailVerification.objects.create(email=email, code=code)
-            return Response({'registered': registered})
+        # if DEBUG or email.endswith('@storetest.com') or email.endswith('@test.com'):
+        #     code = 123456
+        #     EmailVerification.objects.filter(email=email).all().delete()
+        #     EmailVerification.objects.create(email=email, code=code)
+        #     return Response({'registered': registered})
         code = random.randint(100000, 999999)
         EmailVerification.objects.filter(email=email).all().delete()
         EmailVerification.objects.create(email=email, code=code)
