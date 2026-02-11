@@ -31,11 +31,11 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
-    STATICFILES_LOCATION = 'static/'
+    STATICFILES_LOCATION = 'static'
     STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-    PUBLICFILES_LOCATION = 'public/'
+    PUBLICFILES_LOCATION = 'public'
     PUBLICFILES_STORAGE = 'custom_storages.PublicStorage'
-    MEDIAFILES_LOCATION = 'media/'
+    MEDIAFILES_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
     MEDIA_PATH = 'https://' + os.environ['CDN'] + '/media/'
     CHAT_MEDIA_PATH = 'https://' + os.environ['STATIC_CDN'] + '/static/'
