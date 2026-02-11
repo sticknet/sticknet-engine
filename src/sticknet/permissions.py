@@ -29,7 +29,7 @@ class LimitedAccessPermission(permissions.BasePermission):
         if not is_valid:
             limited_access_token.delete()
             return False
-        hashed_token = hash_token(token, limited_access_token.salt)
+        hashed_token = hash_token(token)
         verified = hashed_token == limited_access_token.hash
         if not verified:
             limited_access_token.delete()

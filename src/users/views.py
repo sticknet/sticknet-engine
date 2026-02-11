@@ -10,7 +10,8 @@ from rest_framework import generics, viewsets, status, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
-from knox.crypto import create_token_string, hash_token, create_salt_string
+from knox.crypto import create_token_string, hash_token
+from django.utils.crypto import get_random_string
 
 from firebase_admin import auth
 from django.utils import timezone
@@ -117,8 +118,8 @@ def getUniqueUsername(username):
 
 def user_verified(request):
     token = create_token_string()
-    salt = create_salt_string()
-    hash = hash_token(token, salt)
+    salt = get_random_string(length=16)
+    hash = hash_token(token)
     if 'ethereum_address' in request.data and request.data['ethereum_address'] != None:
         auth_id = request.data['ethereum_address']
         user = User.objects.filter(ethereum_address=auth_id).first()
@@ -215,8 +216,8 @@ class CreateE2EUser(generics.GenericAPIView):
         username = name_list[0].lower() + '_' + name_list[1][:3].lower() + str(randrange(0, 1000))
         params = {'email': email, 'name': name, 'username': username}
         token = create_token_string()
-        salt = create_salt_string()
-        hash = hash_token(token, salt)
+        salt = get_random_string(length=16)
+        hash = hash_token(token)
         if LimitedAccessToken.objects.filter(auth_id=email).exists():
             LimitedAccessToken.objects.get(auth_id=email).delete()
         LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=email)
@@ -578,8 +579,8 @@ class CodeConfirmedDeleteAccount(generics.GenericAPIView):
         if not object or object.code != request.data['code']:
             return Response({'correct': False})
         token = create_token_string()
-        salt = create_salt_string()
-        hash = hash_token(token, salt)
+        salt = get_random_string(length=16)
+        hash = hash_token(token)
         if LimitedAccessToken.objects.filter(auth_id=email).exists():
             LimitedAccessToken.objects.get(auth_id=email).delete()
         LimitedAccessToken.objects.create(hash=hash, salt=salt, auth_id=email)
@@ -619,7 +620,7 @@ class DeleteAccount(APIView):
         token = request.data['delete_account_token']
         user = request.user
         limited_access_token = LimitedAccessToken.objects.get(auth_id=user.email or user.ethereum_address)
-        hashed_token = hash_token(token, limited_access_token.salt)
+        hashed_token = hash_token(token)
         if hashed_token == limited_access_token.hash:
             correct_token = True
             if user.check_password(request.data['password']):
