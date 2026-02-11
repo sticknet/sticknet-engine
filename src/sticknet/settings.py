@@ -12,8 +12,8 @@ if 'RDS_DB_NAME' in os.environ:
     PREPEND_WWW = True
     ALLOWED_HOSTS = ['sticknet.org', 'www.sticknet.org', 'www.stiiick.com',
                      'stiiick.com', 'localhost',
-                     'sticknet-engine-v04.eu-central-1.elasticbeanstalk.com',
-                     'www.sticknet-engine-v04.eu-central-1.elasticbeanstalk.com'
+                     'sticknet-engine-v07.eu-central-1.elasticbeanstalk.com',
+                     'www.sticknet-engine-v07.eu-central-1.elasticbeanstalk.com'
                      '169.254.169.254']
     url = "http://169.254.169.254/latest/meta-data/public-ipv4"
     r = requests.get(url)
