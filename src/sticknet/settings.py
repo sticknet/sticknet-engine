@@ -10,17 +10,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if 'RDS_DB_NAME' in os.environ:
     DEBUG = False
     PREPEND_WWW = True
-    # ALLOWED_HOSTS = ['sticknet.org', 'www.sticknet.org', 'www.stiiick.com',
-    #                  'stiiick.com', 'localhost',
-    #                  'sticknet-engine-v07.eu-central-1.elasticbeanstalk.com',
-    #                  'www.sticknet-engine-v07.eu-central-1.elasticbeanstalk.com'
-    #                  '169.254.169.254']
-    ALLOWED_HOSTS = ['*']
-    # url = "http://169.254.169.254/latest/meta-data/public-ipv4"
-    # r = requests.get(url)
-    # instance_ip = r.text
-    # ALLOWED_HOSTS += [instance_ip]
-    # ALLOWED_HOSTS += [gethostbyname(gethostname())]
+    ALLOWED_HOSTS = ['sticknet.org', 'www.sticknet.org', 'www.stiiick.com',
+                     'stiiick.com', 'localhost',
+                     'sticknet-engine-v07.eu-central-1.elasticbeanstalk.com',
+                     'www.sticknet-engine-v07.eu-central-1.elasticbeanstalk.com'
+                     '169.254.169.254']
+    url = "http://169.254.169.254/latest/meta-data/public-ipv4"
+    r = requests.get(url)
+    instance_ip = r.text
+    ALLOWED_HOSTS += [instance_ip]
+    ALLOWED_HOSTS += [gethostbyname(gethostname())]
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
