@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-# Run this command only on the leader instance.
-#if [ "$EB_IS_COMMAND_LEADER" != "true" ]; then
-#  echo "This instance is not the leader. Skipping database migrations."
-#  exit 0
-#fi
+ Run this command only on the leader instance.
+if [ "$EB_IS_COMMAND_LEADER" != "true" ]; then
+  echo "This instance is not the leader. Skipping database migrations."
+  exit 0
+fi
 
 echo "Activating virtual environment and running migrations..."
 source /var/app/venv/*/bin/activate
